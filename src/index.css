@@ -1,12 +1,37 @@
 :root {
   color-scheme: light;
-  --bg: #f3f5f8;
+  --bg: #eef2f7;
   --surface: #fff;
-  --text: #1c2430;
-  --muted: #5d6b7c;
-  --border: #e2e8ef;
-  --accent: #1f4e79;
-  --accent-press: #183e61;
+  --text: #142033;
+  --muted: #5a6a7d;
+  --border: #d5dee9;
+  --accent: #1a5f9e;
+  --accent-press: #154e82;
+  --shadow: 0 1px 2px rgba(20, 32, 51, 0.06), 0 8px 24px rgba(20, 32, 51, 0.08);
+  --shadow-hover: 0 2px 4px rgba(20, 32, 51, 0.08), 0 16px 40px rgba(26, 95, 158, 0.16);
+  --radius-card: 14px;
+  --ind-建設: #1a4f7a;
+  --ind-建設-bg: #e4edf7;
+  --ind-物流: #155fa8;
+  --ind-物流-bg: #dceafb;
+  --ind-製造: #3d4658;
+  --ind-製造-bg: #e6eaf2;
+  --ind-介護: #1b6b45;
+  --ind-介護-bg: #dff3e8;
+  --ind-飲食: #9a3f12;
+  --ind-飲食-bg: #fde8d8;
+  --ind-不動産: #353f78;
+  --ind-不動産-bg: #e6e9f8;
+  --ind-農業: #276327;
+  --ind-農業-bg: #dff3dc;
+  --ind-士業: #4f3a6a;
+  --ind-士業-bg: #eee6f7;
+  --ind-b2b: #244870;
+  --ind-b2b-bg: #e4eef8;
+  --ind-診療所: #0b5a66;
+  --ind-診療所-bg: #dff0f3;
+  --ind-横断: #4a5563;
+  --ind-横断-bg: #e9eef4;
   font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, "Segoe UI", sans-serif;
   line-height: 1.5;
   font-size: 16px;
@@ -40,18 +65,52 @@ p {
 .shell {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 20px 16px 64px;
+  padding: 24px 16px 72px;
 }
 
 .site-header {
-  margin-bottom: 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
 }
 
-.site-header h1,
+.site-header-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 20px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.site-header h1 {
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.mock-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .detail-title {
   font-size: 22px;
   line-height: 1.35;
   font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .lead,
@@ -108,6 +167,12 @@ p {
 
 .chip {
   border-radius: 999px;
+  transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
+}
+
+.chip:hover {
+  transform: translateY(-1px);
+  border-color: #9aafc3;
 }
 
 .chip[aria-pressed="true"]:not([data-industry]) {
@@ -135,9 +200,8 @@ p {
   cursor: not-allowed;
 }
 
-.card:active,
 .btn:active,
-.chip:active {
+.chip:active:not([aria-pressed="true"]) {
   background: var(--bg);
 }
 
@@ -155,31 +219,32 @@ p {
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
+  gap: 20px;
 }
 
 .card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 10px;
   min-width: 0;
   min-height: 44px;
-  padding: 16px;
+  padding: 18px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-left-width: 4px;
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow);
   color: inherit;
   text-decoration: none;
-}
-
-.card:hover {
-  border-color: var(--accent);
+  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
 }
 
 .card h2 {
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: 700;
   line-height: 1.4;
+  letter-spacing: -0.02em;
 }
 
 .card-problem,
@@ -218,81 +283,108 @@ p {
 
 .pill[data-industry="建設"],
 .chip[aria-pressed="true"][data-industry="建設"] {
-  background: #eef2f6;
-  color: #3d4f63;
+  background: var(--ind-建設-bg);
+  color: var(--ind-建設);
 }
 
 .pill[data-industry="物流・運送"],
 .chip[aria-pressed="true"][data-industry="物流・運送"] {
-  background: #e8f1fb;
-  color: #1d6fbf;
+  background: var(--ind-物流-bg);
+  color: var(--ind-物流);
 }
 
 .pill[data-industry="製造"],
 .chip[aria-pressed="true"][data-industry="製造"] {
-  background: #eef0f4;
-  color: #4a5568;
+  background: var(--ind-製造-bg);
+  color: var(--ind-製造);
 }
 
 .pill[data-industry="介護"],
 .chip[aria-pressed="true"][data-industry="介護"] {
-  background: #e8f6ef;
-  color: #157a45;
+  background: var(--ind-介護-bg);
+  color: var(--ind-介護);
 }
 
 .pill[data-industry="飲食"],
 .chip[aria-pressed="true"][data-industry="飲食"] {
-  background: #fff1e6;
-  color: #c45c12;
+  background: var(--ind-飲食-bg);
+  color: var(--ind-飲食);
 }
 
 .pill[data-industry="不動産"],
 .chip[aria-pressed="true"][data-industry="不動産"] {
-  background: #eef0fa;
-  color: #3f4a8a;
+  background: var(--ind-不動産-bg);
+  color: var(--ind-不動産);
 }
 
 .pill[data-industry="農業"],
 .chip[aria-pressed="true"][data-industry="農業"] {
-  background: #eaf6e8;
-  color: #2f6b2f;
+  background: var(--ind-農業-bg);
+  color: var(--ind-農業);
 }
 
 .pill[data-industry="士業"],
 .chip[aria-pressed="true"][data-industry="士業"] {
-  background: #f4f0fa;
-  color: #5b4578;
+  background: var(--ind-士業-bg);
+  color: var(--ind-士業);
 }
 
 .pill[data-industry="B2B・受発注"],
 .chip[aria-pressed="true"][data-industry="B2B・受発注"] {
-  background: #f0f4f8;
-  color: #2c5282;
+  background: var(--ind-b2b-bg);
+  color: var(--ind-b2b);
 }
 
 .pill[data-industry="診療所"],
 .chip[aria-pressed="true"][data-industry="診療所"] {
-  background: #eaf4f6;
-  color: #0e6674;
+  background: var(--ind-診療所-bg);
+  color: var(--ind-診療所);
 }
 
 .pill[data-industry="横断"],
 .chip[aria-pressed="true"][data-industry="横断"] {
-  background: #f4f6f8;
-  color: #5c6775;
+  background: var(--ind-横断-bg);
+  color: var(--ind-横断);
 }
 
-.chip[aria-pressed="true"][data-industry="建設"] { border-color: #3d4f63; }
-.chip[aria-pressed="true"][data-industry="物流・運送"] { border-color: #1d6fbf; }
-.chip[aria-pressed="true"][data-industry="製造"] { border-color: #4a5568; }
-.chip[aria-pressed="true"][data-industry="介護"] { border-color: #157a45; }
-.chip[aria-pressed="true"][data-industry="飲食"] { border-color: #c45c12; }
-.chip[aria-pressed="true"][data-industry="不動産"] { border-color: #3f4a8a; }
-.chip[aria-pressed="true"][data-industry="農業"] { border-color: #2f6b2f; }
-.chip[aria-pressed="true"][data-industry="士業"] { border-color: #5b4578; }
-.chip[aria-pressed="true"][data-industry="B2B・受発注"] { border-color: #2c5282; }
-.chip[aria-pressed="true"][data-industry="診療所"] { border-color: #0e6674; }
-.chip[aria-pressed="true"][data-industry="横断"] { border-color: #5c6775; }
+.chip[aria-pressed="true"][data-industry="建設"] { border-color: var(--ind-建設); }
+.chip[aria-pressed="true"][data-industry="物流・運送"] { border-color: var(--ind-物流); }
+.chip[aria-pressed="true"][data-industry="製造"] { border-color: var(--ind-製造); }
+.chip[aria-pressed="true"][data-industry="介護"] { border-color: var(--ind-介護); }
+.chip[aria-pressed="true"][data-industry="飲食"] { border-color: var(--ind-飲食); }
+.chip[aria-pressed="true"][data-industry="不動産"] { border-color: var(--ind-不動産); }
+.chip[aria-pressed="true"][data-industry="農業"] { border-color: var(--ind-農業); }
+.chip[aria-pressed="true"][data-industry="士業"] { border-color: var(--ind-士業); }
+.chip[aria-pressed="true"][data-industry="B2B・受発注"] { border-color: var(--ind-b2b); }
+.chip[aria-pressed="true"][data-industry="診療所"] { border-color: var(--ind-診療所); }
+.chip[aria-pressed="true"][data-industry="横断"] { border-color: var(--ind-横断); }
+
+.chip[aria-pressed="true"]:not([data-industry]):hover {
+  border-color: var(--accent-press);
+}
+
+.chip[aria-pressed="true"][data-industry]:hover {
+  border-color: color-mix(in srgb, currentColor 72%, #000);
+}
+
+.card[data-industry="建設"] { border-left-color: var(--ind-建設); }
+.card[data-industry="物流・運送"] { border-left-color: var(--ind-物流); }
+.card[data-industry="製造"] { border-left-color: var(--ind-製造); }
+.card[data-industry="介護"] { border-left-color: var(--ind-介護); }
+.card[data-industry="飲食"] { border-left-color: var(--ind-飲食); }
+.card[data-industry="不動産"] { border-left-color: var(--ind-不動産); }
+.card[data-industry="農業"] { border-left-color: var(--ind-農業); }
+.card[data-industry="士業"] { border-left-color: var(--ind-士業); }
+.card[data-industry="B2B・受発注"] { border-left-color: var(--ind-b2b); }
+.card[data-industry="診療所"] { border-left-color: var(--ind-診療所); }
+.card[data-industry="横断"] { border-left-color: var(--ind-横断); }
+
+.card:hover,
+.card:focus-visible {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
 
 .back {
   display: inline-flex;
@@ -305,6 +397,10 @@ p {
   text-decoration: none;
 }
 
+.back:hover {
+  text-decoration: underline;
+}
+
 .detail-title {
   margin-top: 4px;
 }
@@ -312,7 +408,12 @@ p {
 .meta {
   display: grid;
   gap: 10px;
-  margin: 12px 0 16px;
+  margin: 16px 0 20px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow);
 }
 
 .meta div {
@@ -336,19 +437,32 @@ p {
 .mock-body {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-top-width: 3px;
+  border-radius: var(--radius-card);
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
+.mock-body[data-industry="建設"] { border-top-color: var(--ind-建設); }
+.mock-body[data-industry="物流・運送"] { border-top-color: var(--ind-物流); }
+.mock-body[data-industry="製造"] { border-top-color: var(--ind-製造); }
+.mock-body[data-industry="介護"] { border-top-color: var(--ind-介護); }
+.mock-body[data-industry="飲食"] { border-top-color: var(--ind-飲食); }
+.mock-body[data-industry="不動産"] { border-top-color: var(--ind-不動産); }
+.mock-body[data-industry="農業"] { border-top-color: var(--ind-農業); }
+.mock-body[data-industry="士業"] { border-top-color: var(--ind-士業); }
+.mock-body[data-industry="B2B・受発注"] { border-top-color: var(--ind-b2b); }
+.mock-body[data-industry="診療所"] { border-top-color: var(--ind-診療所); }
+.mock-body[data-industry="横断"] { border-top-color: var(--ind-横断); }
+
 .mock-body h2 {
   font-size: 15px;
 }
 
 .mock-foot {
-  margin-top: 16px;
+  margin-top: 32px;
   padding-top: 12px;
   border-top: 1px solid var(--border);
   text-align: center;
@@ -687,6 +801,19 @@ table.shift th {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+@media (min-width: 640px) {
+  .site-header-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .site-header h1 {
+    font-size: 32px;
+  }
 }
 
 @media (max-width: 800px) {
