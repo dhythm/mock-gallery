@@ -52,7 +52,7 @@ export function MockPage() {
           <dd>{meta.aiRole}</dd>
         </div>
       </dl>
-      <section className="mock-body" aria-label="モック本体">
+      <section className="mock-body" data-industry={meta.industry} aria-label="モック本体">
         <View />
       </section>
       <p className="mock-foot">これはモックです／本番接続なし</p>
