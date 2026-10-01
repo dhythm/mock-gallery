@@ -1,3 +1,4 @@
+import "./people-workflows.css";
 import { useMemo, useState } from "react";
 import { Badge, Banner, Btn, Preview, Segmented, SelectField, TextField } from "../components/kit.tsx";
 import { useToast } from "../components/toast-context.ts";
@@ -27,7 +28,20 @@ export function CareHandover() {
   const csv = ["時刻,利用者,区分,内容", ...notes.map((note) => `${note.at},${note.resident},${note.kind},${note.body}`)].join("\n");
 
   return (
-    <div className="stack">
+    <div className="stack pflow-workspace">
+      <div className="pflow-context">
+        <div className="pflow-context-main">
+          <div className="pflow-monogram" aria-hidden="true">記</div>
+          <div><p className="pflow-kicker">Daily care notes</p><h2>今日の申し送り</h2><p className="hint">利用者ごとの小さな変化を、次の担当者へ。</p></div>
+        </div>
+        <div className="pflow-metrics">
+          <div className="pflow-metric"><strong>{notes.length}<small>件</small></strong><small>本日の記録</small></div>
+          <div className="pflow-metric"><strong>{new Set(notes.map((note) => note.resident)).size}<small>名</small></strong><small>記録のある利用者</small></div>
+        </div>
+      </div>
+      <div className="pflow-columns">
+      <section className="pflow-column" aria-label="利用者の記録">
+      <div className="pflow-heading"><div><p className="pflow-kicker">01 / Timeline</p><h2>記録を確認</h2></div><Badge tone="muted">{visible.length}件を表示</Badge></div>
       <Segmented
         label="利用者"
         value={resident}
@@ -50,17 +64,20 @@ export function CareHandover() {
           <tbody>
             {visible.map((note) => (
               <tr key={note.id}>
-                <td>{note.at}</td>
-                <td>{note.resident}</td>
-                <td><Badge tone="info">{note.kind}</Badge></td>
-                <td>{note.body}</td>
+                <td data-label="時刻"><span className="pflow-time">{note.at}</span></td>
+                <td data-label="利用者"><span className="pflow-person">{note.resident}</span></td>
+                <td data-label="区分"><Badge tone="info">{note.kind}</Badge></td>
+                <td data-label="内容">{note.body}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      </section>
+      <section className="pflow-panel pflow-panel-soft">
+      <div className="pflow-heading"><div><p className="pflow-kicker">02 / New record</p><h2>気づきを残す</h2><p className="hint">短いメモから、その場で記録できます。</p></div></div>
       <form
-        className="form-grid"
+        className="form-grid pflow-form"
         onSubmit={(event) => {
           event.preventDefault();
           setNotes((current) => [
@@ -87,6 +104,10 @@ export function CareHandover() {
         <TextField label="内容" value={body} onChange={setBody} required placeholder="例: 午後の服薬を確認" />
         <Btn type="submit" kind="primary">記録を追加</Btn>
       </form>
+      </section>
+      </div>
+      <div className="pflow-footer">
+      <p className="hint">記録をまとめて、既存ソフトへの取り込みや紙の申し送りに。</p>
       <div className="actions">
         <Btn
           onClick={() => {
@@ -103,6 +124,7 @@ export function CareHandover() {
         >
           印刷イメージ
         </Btn>
+      </div>
       </div>
       {csvOn ? <Preview title="取り込み用CSV" text={csv} /> : null}
     </div>
@@ -133,10 +155,17 @@ export function CarePaperBridge() {
   const unclassified = scans.filter((scan) => scan.kind === "未分類").length;
 
   return (
-    <div className="stack">
+    <div className="stack pflow-workspace">
+      <div className="pflow-context">
+        <div className="pflow-context-main"><div className="pflow-monogram" aria-hidden="true">紙</div><div><p className="pflow-kicker">Paper to record</p><h2>紙の記録を、使えるデータへ</h2><p className="hint">内容を確かめてから、既存ソフトへ橋渡し。</p></div></div>
+        <div className="pflow-metrics"><div className="pflow-metric"><strong>{scans.length}<small>件</small></strong><small>取り込み済み</small></div><div className="pflow-metric"><strong>{scans.length - unclassified}<small>件</small></strong><small>分類済み</small></div></div>
+      </div>
+      <div className="pflow-process" aria-label="取り込みの流れ"><div><b>01</b><span>スキャン<small>ファイルを追加</small></span></div><div><b>02</b><span>人が確認<small>利用者・種別を分類</small></span></div><div><b>03</b><span>書き出し<small>既存ソフトへ</small></span></div></div>
       <Banner tone={unclassified > 0 ? "warn" : "ok"}>
         {unclassified > 0 ? `未分類 ${unclassified}件。候補は裏方の当たりです` : "未分類はありません"}
       </Banner>
+      <section aria-label="スキャン一覧">
+      <div className="pflow-heading"><div><h2>確認待ちの書類</h2><p className="hint">候補は参考情報です。種別は確認して選びます。</p></div><Badge tone={unclassified ? "warn" : "ok"}>未分類 {unclassified}件</Badge></div>
       <div className="table-wrap">
         <table className="data">
           <thead>
@@ -150,9 +179,9 @@ export function CarePaperBridge() {
           <tbody>
             {scans.map((scan) => (
               <tr key={scan.id}>
-                <td>{scan.file}</td>
-                <td>{scan.resident}</td>
-                <td>
+                <td data-label="ファイル"><strong>{scan.file}</strong></td>
+                <td data-label="利用者">{scan.resident}</td>
+                <td data-label="種別">
                   <select
                     className="select"
                     aria-label={`${scan.file}の種別`}
@@ -171,7 +200,7 @@ export function CarePaperBridge() {
                     ))}
                   </select>
                 </td>
-                <td>
+                <td data-label="候補">
                   <span className="hint">候補: {scan.hint}（裏方。人が分類）</span>
                 </td>
               </tr>
@@ -179,6 +208,9 @@ export function CarePaperBridge() {
           </tbody>
         </table>
       </div>
+      </section>
+      <section className="pflow-inline-form">
+      <div className="pflow-heading"><div><h3>書類を追加</h3><p className="hint">新しいスキャンは「未分類」として一覧に加わります。</p></div></div>
       <form
         className="form-grid"
         onSubmit={(event) => {
@@ -201,6 +233,8 @@ export function CarePaperBridge() {
         <TextField label="ファイル名" value={file} onChange={setFile} required placeholder="scan_0930_003.pdf" />
         <Btn type="submit" kind="primary">スキャンを追加</Btn>
       </form>
+      </section>
+      <div className="pflow-footer"><p className="hint">{scans.length}件の書類情報を書き出します。出力前に未分類をご確認ください。</p>
       <Btn
         onClick={() => {
           setExported(true);
@@ -209,6 +243,7 @@ export function CarePaperBridge() {
       >
         CSVを出す
       </Btn>
+      </div>
       {exported ? <Preview title="既存ソフト向けCSV" text={csv} /> : null}
     </div>
   );
@@ -247,11 +282,17 @@ export function CareShiftBoard() {
   }, [staff]);
 
   return (
-    <div className="stack">
-      <Banner tone={shortages.length > 0 ? "warn" : "ok"}>
-        {shortages.length > 0 ? `人数不足: ${shortages.join("、")}` : "配置基準は足りています"}
-      </Banner>
-      <div className="table-wrap">
+    <div className="stack pflow-workspace">
+      <div className="pflow-context">
+        <div className="pflow-context-main"><div className="pflow-monogram" aria-hidden="true">勤</div><div><p className="pflow-kicker">Weekly staffing</p><h2>一週間の配置を見渡す</h2><p className="hint">必要人数: 早番2名・遅番2名・夜勤1名 / 日</p></div></div>
+        <div className="pflow-metrics"><div className="pflow-metric"><strong>{staff.length}<small>名</small></strong><small>スタッフ</small></div><div className="pflow-metric"><strong>{shortages.length}<small>枠</small></strong><small>配置基準に未達</small></div></div>
+      </div>
+      <div className="pflow-coverage" aria-label="曜日ごとの配置人数">{days.map((day, index) => <div className="pflow-day" key={day}><strong>{day}</strong>{(["早", "遅", "夜"] as const).map((mark) => <span className={countShift(staff, index, mark) < required[mark] ? "pflow-short" : ""} key={mark}>{mark} {countShift(staff, index, mark)}/{required[mark]}</span>)}</div>)}</div>
+      {shortages.length > 0 ? <details className="pflow-shortage-details"><summary>配置が必要な {shortages.length}枠を確認</summary><p>人数不足: {shortages.join("、")}</p></details> : <Banner tone="ok">配置基準は足りています</Banner>}
+      <div className="pflow-heading"><div><h2>スタッフ別シフト</h2><p className="hint">セルを押すと、空 → 早 → 遅 → 夜 → 休の順に切り替わります。</p></div></div>
+      <div className="pflow-legend"><span><i className="pflow-dot" />早番</span><span><i className="pflow-dot pflow-dot-late" />遅番</span><span><i className="pflow-dot pflow-dot-night" />夜勤</span><span><i className="pflow-dot pflow-dot-open" />枠線は人数不足</span></div>
+      <p className="pflow-scroll-hint">左右にスクロールして一週間を確認できます</p>
+      <div className="table-wrap pflow-board">
         <table className="shift">
           <thead>
             <tr>
@@ -264,7 +305,7 @@ export function CareShiftBoard() {
           <tbody>
             {staff.map((person) => (
               <tr key={person.id}>
-                <th>{person.name}</th>
+                <th scope="row">{person.name}</th>
                 {person.days.map((mark, index) => {
                   const short =
                     mark !== "" &&
@@ -274,6 +315,8 @@ export function CareShiftBoard() {
                     <td key={`${person.id}-${days[index]}`}>
                       <button
                         type="button"
+                        aria-label={`${person.name} ${days[index]} ${mark || "空"}、クリックで変更`}
+                        data-shift={mark}
                         className={`cell-btn${short ? " is-short" : ""}${mark === "休" || mark === "" ? " is-off" : ""}`}
                         onClick={() => {
                           const next = shiftCycle[(shiftCycle.indexOf(mark) + 1) % shiftCycle.length] ?? "";
@@ -302,6 +345,7 @@ export function CareShiftBoard() {
           </tbody>
         </table>
       </div>
+      <div className="pflow-footer"><p className="hint">寄せられた希望休を反映して、配置を調整しましょう。</p>
       <div className="actions">
         <Btn
           kind="primary"
@@ -319,8 +363,9 @@ export function CareShiftBoard() {
           希望を反映
         </Btn>
       </div>
+      </div>
       <form
-        className="form-grid"
+        className="form-grid pflow-inline-form"
         onSubmit={(event) => {
           event.preventDefault();
           setStaff((current) => [

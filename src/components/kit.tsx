@@ -26,6 +26,8 @@ export function TextField({
         value={value}
         placeholder={placeholder}
         required={required}
+        pattern={required ? ".*\\S.*" : undefined}
+        title={required ? "空白以外の文字を入力してください" : undefined}
         onChange={(event) => onChange(event.target.value)}
       />
     </div>
@@ -205,11 +207,11 @@ export function Stepper({
 }) {
   return (
     <div className="stepper" role="group" aria-label={label}>
-      <button type="button" className="btn" onClick={() => onChange(Math.max(0, value - 1))}>
+      <button type="button" className="btn" aria-label={`${label}を減らす`} disabled={value <= 0} onClick={() => onChange(Math.max(0, value - 1))}>
         −
       </button>
       <span className="stepper-value">{value}</span>
-      <button type="button" className="btn" onClick={() => onChange(value + 1)}>
+      <button type="button" className="btn" aria-label={`${label}を増やす`} onClick={() => onChange(value + 1)}>
         ＋
       </button>
     </div>

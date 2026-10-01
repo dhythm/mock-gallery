@@ -1,5 +1,6 @@
+import "./people-workflows.css";
 import { useState } from "react";
-import { Btn, Preview, TextField } from "../components/kit.tsx";
+import { Badge, Btn, Preview, TextField } from "../components/kit.tsx";
 import { useToast } from "../components/toast-context.ts";
 import { nextId, shortDate } from "../data/demo.ts";
 
@@ -34,8 +35,13 @@ export function PropertyOwnerReport() {
   ].join("\n");
 
   return (
-    <div className="stack">
-      <div className="actions">
+    <div className="stack pflow-workspace">
+      <div className="pflow-context">
+        <div className="pflow-context-main"><div className="pflow-monogram" aria-hidden="true">桜</div><div><p className="pflow-kicker">Owner reporting / Maison Sakuradai</p><h2>メゾン桜台</h2><p className="hint">月次の収支と連絡履歴を、一つの報告に。</p></div></div>
+        <Badge tone={packed ? "ok" : "muted"}>{packed ? "報告パック作成済み" : "報告パックの下書き"}</Badge>
+      </div>
+      <div className="pflow-heading"><div><p className="pflow-kicker">Monthly statement</p><h2>{month.replace("-", "年")}月の収支</h2></div>
+      <div className="actions" role="group" aria-label="報告月">
         {(Object.keys(months) as (keyof typeof months)[]).map((key) => (
           <button
             key={key}
@@ -52,42 +58,26 @@ export function PropertyOwnerReport() {
           </button>
         ))}
       </div>
-      <div className="stats">
-        <div className="stat">
-          <b>{figures.income.toLocaleString("ja-JP")}</b>
-          <span>賃料収入（円）</span>
-        </div>
-        <div className="stat">
-          <b>{figures.fee.toLocaleString("ja-JP")}</b>
-          <span>管理費（円）</span>
-        </div>
-        <div className="stat">
-          <b>{figures.repair.toLocaleString("ja-JP")}</b>
-          <span>修繕（円）</span>
-        </div>
       </div>
-      <div className="table-wrap">
-        <table className="data">
-          <thead>
-            <tr>
-              <th>日付</th>
-              <th>経路</th>
-              <th>内容</th>
-            </tr>
-          </thead>
-          <tbody>
-            {contacts.map((contact) => (
-              <tr key={contact.id}>
-                <td>{shortDate(contact.date)}</td>
-                <td>{contact.channel}</td>
-                <td>{contact.body}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="pflow-ledger" aria-label="月次収支">
+        <div className="pflow-ledger-total"><span>収支差額</span><strong>{(figures.income - figures.fee - figures.repair).toLocaleString("ja-JP")}<small>円</small></strong></div>
+        <div><span>賃料収入</span><strong>{figures.income.toLocaleString("ja-JP")}<small>円</small></strong></div>
+        <div><span>管理費</span><strong>{figures.fee.toLocaleString("ja-JP")}<small>円</small></strong></div>
+        <div><span>修繕</span><strong>{figures.repair.toLocaleString("ja-JP")}<small>円</small></strong></div>
       </div>
+      <div className="pflow-columns">
+      <section className="pflow-column">
+      <div className="pflow-heading"><div><p className="pflow-kicker">Communication history</p><h2>オーナーとの連絡</h2></div><Badge tone="muted">{contacts.length}件</Badge></div>
+      <div className="pflow-panel pflow-contact-list">
+        {contacts.map((contact) => <article className="pflow-contact" key={contact.id}>
+          <time dateTime={contact.date}>{shortDate(contact.date)}</time>
+          <div><Badge tone="muted">{contact.channel}</Badge><p>{contact.body}</p></div>
+        </article>)}
+      </div>
+      <section className="pflow-inline-form">
+      <div className="pflow-heading"><h3>連絡内容を記録</h3></div>
       <form
-        className="form-grid"
+        className="form-grid pflow-form"
         onSubmit={(event) => {
           event.preventDefault();
           setContacts((current) => [
@@ -103,6 +93,11 @@ export function PropertyOwnerReport() {
         <TextField label="内容" value={body} onChange={setBody} required placeholder="例: 漏水の一次対応を報告" />
         <Btn type="submit" kind="primary">連絡を追加</Btn>
       </form>
+      </section>
+      </section>
+      <section className="pflow-panel pflow-panel-soft pflow-column">
+      <div className="pflow-heading"><div><p className="pflow-kicker">Report package</p><h2>報告パック</h2><p className="hint">収支と連絡履歴をまとめた、オーナーへの報告内容です。</p></div></div>
+      {packed ? <Preview title="PDFイメージ" text={text} /> : <Preview title="下書き" text={text} />}
       <Btn
         kind="primary"
         onClick={() => {
@@ -112,7 +107,9 @@ export function PropertyOwnerReport() {
       >
         PDFパックを作成
       </Btn>
-      {packed ? <Preview title="PDFイメージ" text={text} /> : <Preview title="下書き" text={text} />}
+      <p className="hint">収支や連絡を変更したときは、再度パックを作成します。</p>
+      </section>
+      </div>
     </div>
   );
 }

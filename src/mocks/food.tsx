@@ -1,3 +1,4 @@
+import "./people-workflows.css";
 import { useState } from "react";
 import { Badge, Banner, Btn, Preview, SelectField, Stepper, TextField } from "../components/kit.tsx";
 import { useToast } from "../components/toast-context.ts";
@@ -23,9 +24,14 @@ export function ShiftExcelBridge() {
   const tsv = [header, ...rows.map((row) => [row.name, row.team, ...row.days].join("\t"))].join("\n");
 
   return (
-    <div className="stack">
-      <p className="hint">飲食と介護の希望を、同じ表に揃えます。自動作成はしません。</p>
-      <div className="table-wrap">
+    <div className="stack pflow-workspace">
+      <div className="pflow-context">
+        <div className="pflow-context-main"><div className="pflow-monogram" aria-hidden="true">希</div><div><p className="pflow-kicker">Availability collection</p><h2>みんなの希望を、一枚に</h2><p className="hint">飲食と介護の希望を、同じ表に揃えます。自動作成はしません。</p></div></div>
+        <div className="pflow-metrics"><div className="pflow-metric"><strong>{rows.length}<small>名</small></strong><small>希望の収集対象</small></div><div className="pflow-metric"><strong>{rows.reduce((total, row) => total + row.days.filter(Boolean).length, 0)}<small>枠</small></strong><small>入力済み</small></div></div>
+      </div>
+      <div className="pflow-heading"><div><h2>週間の希望一覧</h2><p className="hint">○ 入れる / 休 休み / 入 時間指定 / 空 未入力</p></div><Badge tone={exported ? "ok" : "muted"}>{exported ? "書き出し済み" : "編集中"}</Badge></div>
+      <p className="pflow-scroll-hint">左右にスクロールして、曜日ごとの希望を選択できます</p>
+      <div className="table-wrap pflow-board pflow-wish-board">
         <table className="data">
           <thead>
             <tr>
@@ -39,10 +45,10 @@ export function ShiftExcelBridge() {
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
-                <td>{row.name}</td>
-                <td>{row.team}</td>
+                <td data-label="名前"><strong>{row.name}</strong></td>
+                <td data-label="所属">{row.team}</td>
                 {row.days.map((mark, index) => (
-                  <td key={`${row.id}-${week[index]}`}>
+                  <td key={`${row.id}-${week[index]}`} data-label={week[index]}>
                     <select
                       className="select"
                       aria-label={`${row.name} ${week[index]}`}
@@ -77,6 +83,8 @@ export function ShiftExcelBridge() {
           </tbody>
         </table>
       </div>
+      <section className="pflow-inline-form">
+      <div className="pflow-heading"><div><h3>スタッフを一覧に追加</h3><p className="hint">所属を選び、一週間の希望を入力します。</p></div></div>
       <form
         className="form-grid"
         onSubmit={(event) => {
@@ -102,6 +110,8 @@ export function ShiftExcelBridge() {
         />
         <Btn type="submit" kind="primary">希望を追加</Btn>
       </form>
+      </section>
+      <div className="pflow-footer"><p className="hint">普段のExcelをそのまま使える、タブ区切りの表を生成します。</p>
       <Btn
         kind="primary"
         onClick={() => {
@@ -111,6 +121,7 @@ export function ShiftExcelBridge() {
       >
         Excel形式で書き出し
       </Btn>
+      </div>
       {exported ? <Preview title="タブ区切り（Sheets / Excel）" text={tsv} /> : null}
     </div>
   );
@@ -137,9 +148,15 @@ export function RestaurantOrderLoss() {
   ]);
 
   return (
-    <div className="stack">
+    <div className="stack pflow-workspace">
+      <div className="pflow-context">
+        <div className="pflow-context-main"><div className="pflow-monogram" aria-hidden="true">仕</div><div><p className="pflow-kicker">Daily kitchen operations</p><h2>今日の仕入れとロス</h2><p className="hint">棚を見ながら、必要な分だけ発注。</p></div></div>
+        <div className="pflow-metrics"><div className="pflow-metric"><strong>{orders.filter((order) => order.stock === "少").length}<small>品</small></strong><small>在庫少なめ</small></div><div className="pflow-metric"><strong>{losses.length}<small>件</small></strong><small>ロスの記録</small></div></div>
+      </div>
       <Banner tone={sent ? "ok" : "info"}>{sent ? "今日の発注は確定済です" : "発注はまだ下書きです"}</Banner>
-      <h2>発注と棚の概数</h2>
+      <div className="pflow-columns pflow-order-columns">
+      <section className="pflow-column">
+      <div className="pflow-heading"><div><p className="pflow-kicker">01 / Stock & order</p><h2>発注と棚の概数</h2><p className="hint">在庫は3段階。数量は仕入れ単位で調整します。</p></div><Badge tone="muted">{orders.length}品目</Badge></div>
       <div className="table-wrap">
         <table className="data">
           <thead>
@@ -152,8 +169,8 @@ export function RestaurantOrderLoss() {
           <tbody>
             {orders.map((order) => (
               <tr key={order.id}>
-                <td>{order.name}</td>
-                <td>
+                <td data-label="品目"><strong>{order.name}</strong></td>
+                <td data-label="発注"><div className="pflow-quantity">
                   <Stepper
                     label={`${order.name}の発注数`}
                     value={order.qty}
@@ -165,10 +182,10 @@ export function RestaurantOrderLoss() {
                       toast(`${order.name}の発注を${value}${order.unit}にしました`);
                     }}
                   />
-                  <span className="hint"> {order.unit}</span>
-                </td>
-                <td>
-                  <div className="actions">
+                  <span className="hint">{order.unit}</span>
+                </div></td>
+                <td data-label="在庫">
+                  <div className="actions pflow-stock-controls" role="group" aria-label={`${order.name}の在庫`}>
                     {(["多", "普通", "少"] as const).map((stock) => (
                       <button
                         key={stock}
@@ -192,7 +209,9 @@ export function RestaurantOrderLoss() {
           </tbody>
         </table>
       </div>
-      <h2>ロス</h2>
+      </section>
+      <section className="pflow-panel pflow-panel-soft pflow-column">
+      <div className="pflow-heading"><div><p className="pflow-kicker">02 / Loss log</p><h2>ロス</h2><p className="hint">廃棄や提供ミスも、小さな記録から。</p></div></div>
       <div className="table-wrap">
         <table className="data">
           <thead>
@@ -205,21 +224,26 @@ export function RestaurantOrderLoss() {
           <tbody>
             {losses.map((loss) => (
               <tr key={loss.id}>
-                <td>{loss.item}</td>
-                <td>{loss.qty}</td>
-                <td><Badge tone="warn">{loss.reason}</Badge></td>
+                <td data-label="品目">{loss.item}</td>
+                <td data-label="数量">{loss.qty}</td>
+                <td data-label="理由"><Badge tone="warn">{loss.reason}</Badge></td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       <form
-        className="form-grid"
+        className="form-grid pflow-form"
         onSubmit={(event) => {
           event.preventDefault();
+          const quantity = Number(qty);
+          if (!Number.isFinite(quantity) || quantity <= 0) {
+            toast("数量は0より大きい数値で入力してください");
+            return;
+          }
           setLosses((current) => [
             ...current,
-            { id: nextId("l"), item, qty: Number(qty) || 0, reason },
+            { id: nextId("l"), item, qty: quantity, reason },
           ]);
           toast(`${item}のロスを記録しました`);
         }}
@@ -243,6 +267,9 @@ export function RestaurantOrderLoss() {
         />
         <Btn type="submit">ロスを記録</Btn>
       </form>
+      </section>
+      </div>
+      <div className="pflow-footer"><p className="hint">{orders.filter((order) => order.qty > 0).length}品目の発注内容を確認して確定します。</p>
       <Btn
         kind="primary"
         onClick={() => {
@@ -252,6 +279,7 @@ export function RestaurantOrderLoss() {
       >
         発注を確定
       </Btn>
+      </div>
     </div>
   );
 }
@@ -280,12 +308,18 @@ export function RestaurantShiftExit() {
   const openCount = cells.filter((cell) => cell.name === "").length;
 
   return (
-    <div className="stack">
+    <div className="stack pflow-workspace">
+      <div className="pflow-context">
+        <div className="pflow-context-main"><div className="pflow-monogram" aria-hidden="true">食</div><div><p className="pflow-kicker">Hikari / Main store</p><h2>食堂ひかり 本店</h2><p className="hint">役割ごとの空きを埋めて、一週間を整える。</p></div></div>
+        <div className="pflow-metrics"><div className="pflow-metric"><strong>{cells.length - openCount}<small>枠</small></strong><small>配置済み</small></div><div className="pflow-metric"><strong>{openCount}<small>枠</small></strong><small>空き</small></div><div className="pflow-metric"><strong>{roleList.length}</strong><small>役割</small></div></div>
+      </div>
       <Banner tone={published ? "ok" : "info"}>
         {published ? "食堂ひかり 本店のシフトは公開中です" : "下書きです。公開するとスタッフから見えます"}
       </Banner>
-      <p className="hint">空き {openCount}枠</p>
-      <div className="table-wrap">
+      <div className="pflow-heading"><div><h2>週間シフト</h2><p className="hint">セルを押すと、担当者を配置・解除できます。</p></div><Badge tone={openCount ? "warn" : "ok"}>空き {openCount}枠</Badge></div>
+      <div className="pflow-coverage" aria-label="曜日ごとの配置状況">{week.map((day) => <div className="pflow-day" key={day}><strong>{day}</strong><span className={cells.some((cell) => cell.day === day && !cell.name) ? "pflow-short" : ""}>{cells.filter((cell) => cell.day === day && cell.name).length}/{roleList.length}</span></div>)}</div>
+      <p className="pflow-scroll-hint">左右にスクロールして一週間を確認できます</p>
+      <div className="table-wrap pflow-board">
         <table className="shift">
           <thead>
             <tr>
@@ -298,7 +332,7 @@ export function RestaurantShiftExit() {
           <tbody>
             {roleList.map((role) => (
               <tr key={role}>
-                <th>{role}</th>
+                <th scope="row">{role}</th>
                 {week.map((day) => {
                   const cell = cells.find((item) => item.role === role && item.day === day);
                   const name = cell?.name ?? "";
@@ -306,6 +340,7 @@ export function RestaurantShiftExit() {
                     <td key={`${role}-${day}`}>
                       <button
                         type="button"
+                        aria-label={`${day} ${role} ${name || "空き"}、クリックで変更`}
                         className={`cell-btn${name ? "" : " is-short"}`}
                         onClick={() => {
                           const next = name ? "" : "田中";
@@ -330,6 +365,7 @@ export function RestaurantShiftExit() {
           </tbody>
         </table>
       </div>
+      <div className="pflow-footer"><p className="hint">公開後に配置を変更すると、再び下書きになります。</p>
       <div className="actions">
         <Btn
           kind="primary"
@@ -342,11 +378,14 @@ export function RestaurantShiftExit() {
         </Btn>
         {published ? <Badge tone="ok">公開中</Badge> : <Badge tone="muted">下書き</Badge>}
       </div>
+      </div>
       <form
-        className="form-grid"
+        className="form-grid pflow-inline-form"
         onSubmit={(event) => {
           event.preventDefault();
           const role = roleName.trim();
+          if (!role) { toast("役割を入力してください"); return; }
+          if (roleList.includes(role)) { toast("同じ役割は登録済みです"); return; }
           setRoleList((current) => [...current, role]);
           setCells((current) => [...current, ...week.map((day) => ({ role, day, name: "" }))]);
           setRoleName("");
